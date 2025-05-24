@@ -13,7 +13,7 @@ class UserService(BaseService):
     @classmethod
     async def add_users(cls):
         try:
-            raw_request = await RandomUsersAPI.get_users(5)
+            raw_request = await RandomUsersAPI.get_users()
 
             if raw_request:
                 results = raw_request.get("results", "")
