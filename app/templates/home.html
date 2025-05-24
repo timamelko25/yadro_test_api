@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">User List</h1>
+
+        <!-- User table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white shadow-md rounded-lg">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm">
+                        <th class="py-3 px-6 text-left">Photo</th>
+                        <th class="py-3 px-6 text-left">Name</th>
+                        <th class="py-3 px-6 text-left">Gender</th>
+                        <th class="py-3 px-6 text-left">Email</th>
+                        <th class="py-3 px-6 text-left">Phone</th>
+                        <th class="py-3 px-6 text-left">Location</th>
+                        <th class="py-3 px-6 text-left">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if users %}
+                        {% for user in users %}
+                        <tr class="border-b">
+                            <td class="py-3 px-6"><img src="{{ user.photo_url }}" alt="User Photo" class="w-10 h-10 rounded-full"></td>
+                            <td class="py-3 px-6">{{ user.name }} {{ user.surname }}</td>
+                            <td class="py-3 px-6">{{ user.gender }}</td>
+                            <td class="py-3 px-6">{{ user.email }}</td>
+                            <td class="py-3 px-6">{{ user.phone_number }}</td>
+                            <td class="py-3 px-6">
+                                {% if user.location %}
+                                    {% set address_parts = [
+                                        user.location.street_number ~ ' ' ~ user.location.street_name,
+                                        user.location.city,
+                                        user.location.state,
+                                        user.location.country
+                                    ] %}
+                                    {% if user.location.postcode %}
+                                        {% set address_parts = address_parts + [user.location.postcode] %}
+                                    {% endif %}
+                                    {{ address_parts | select('ne', '') | join(', ') }}
+                                {% else %}
+                                    No location
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-6">
+                                <a href="/{{ user.id }}/" class="text-blue-500 hover:underline">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="7" class="py-3 px-6 text-center">No users found</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Compact Pagination -->
+        {% if total_pages > 1 %}
+        <div class="mt-4 flex justify-center items-center space-x-2">
+            <!-- Previous Button -->
+            {% if page > 1 %}
+            <a href="?page={{ page - 1 }}&per_page={{ per_page }}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">Prev</a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-300 text-gray-500 rounded text-sm cursor-not-allowed">Prev</span>
+            {% endif %}
+
+            <!-- First Page -->
+            {% if total_pages > 1 %}
+            <a href="?page=1&per_page={{ per_page }}" class="px-3 py-1 {{ 'bg-blue-500 text-white' if page == 1 else 'bg-gray-200 text-gray-700' }} rounded hover:bg-blue-400 text-sm">1</a>
+            {% endif %}
+
+            <!-- Ellipsis for pages before the window -->
+            {% if page > 4 %}
+            <span class="px-3 py-1 text-gray-600 text-sm">...</span>
+            {% endif %}
+
+            <!-- Pages in the window (current page ± 2) -->
+            {% for p in range(page - 2, page + 3) if p > 1 and p < total_pages %}
+            <a href="?page={{ p }}&per_page={{ per_page }}" class="px-3 py-1 {{ 'bg-blue-500 text-white' if p == page else 'bg-gray-200 text-gray-700' }} rounded hover:bg-blue-400 text-sm">{{ p }}</a>
+            {% endfor %}
+
+            <!-- Ellipsis for pages after the window -->
+            {% if page < total_pages - 3 %}
+            <span class="px-3 py-1 text-gray-600 text-sm">...</span>
+            {% endif %}
+
+            <!-- Last Page -->
+            {% if total_pages > 1 %}
+            <a href="?page={{ total_pages }}&per_page={{ per_page }}" class="px-3 py-1 {{ 'bg-blue-500 text-white' if page == total_pages else 'bg-gray-200 text-gray-700' }} rounded hover:bg-blue-400 text-sm">{{ total_pages }}</a>
+            {% endif %}
+
+            <!-- Next Button -->
+            {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}&per_page={{ per_page }}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">Next</a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-300 text-gray-500 rounded text-sm cursor-not-allowed">Next</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        <p class="mt-2 text-center text-gray-600 text-sm">Total Users: {{ total_users }}</p>
+    </div>
+</body>
+</html>
